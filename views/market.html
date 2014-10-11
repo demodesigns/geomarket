@@ -1,0 +1,43 @@
+<% include header.html %>
+<% include footer.html %>
+
+<link href="/css/bootstrap.css" rel="stylesheet">
+
+<style>
+#options {
+	height: 10%;
+}
+</style>
+
+<div id="options" class="container-narrow">
+	<div class="row">
+		<div class="col-xs-4 col-xs-offset-9">
+			<form action="/createAd">
+				<button type="submit" class="btn btn-warning">post something</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="container-narrow">
+	<table class="table table-hover">
+		<thead class="tableHead">
+			<tr>
+				<th> <b> Title </b></th>
+				<th> Price </th>
+				<th> Description </th>
+				<th> User </th>
+			</tr>
+		</thead>
+		<tbody class="tableBody">
+			<% ads.forEach(function(ad) { %>
+				<tr>
+					<td> <%= ad.title %> </td>
+					<td> <%= ad.price.toFixed(2) %> </td>
+					<td> <%= ad.description %> </td>
+					<td> john doe </td>
+				</tr>
+			<% }); %>
+		</tbody>
+	</table>
+</div>

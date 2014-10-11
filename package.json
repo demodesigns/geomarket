@@ -1,0 +1,16 @@
+{
+	"name": "Knight-Market",
+	"description": "for eduction and computers class",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"express": "3.3.1",
+		"ejs": "0.8.5",
+		"mongoose": "3.8.0",
+		"passport": "0.1.18",
+		"passport-local": "0.1.x",
+		"connect-ensure-login": "0.1.x",
+		"cloudinary": "1.0.10"
+	}
+}
+

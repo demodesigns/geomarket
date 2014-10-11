@@ -1,0 +1,56 @@
+<% include header.html %>
+
+<style>
+  body {
+    padding-top: 50px;
+  }
+  .starter-template {
+    padding: 40px 15px;
+    text-align: center;
+  }
+</style>
+
+<div class="container">
+
+  <div class="starter-template">
+    <h1>Signup</h1>
+    <br>
+    <p class="lead">Signup for RU Market is simple! <br> Simply fill in the following form, and an account will be created for you. <br><br> </p>
+
+    <form class="form-inline" action="/signup" method="post" class="form-horizontal span3">
+        <div class="control-group">
+            <div class="controls">
+                <input type="text" name="username" placeholder="username">
+            </div>
+        </div>
+        <br>
+        <div class="control-group">
+            <div class="controls">
+                <input type="text" name="password" placeholder="password">
+            </div>
+        </div>
+        <br>
+        <div class="control-group">
+            <div class="controls">
+                <input type="text" name="email" placeholder="email">
+            </div>
+        </div>
+        <br>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn">submit</button>
+            </div>
+        </div>
+    </form>
+  </div>
+
+
+</div>
+
+
+  <!-- Bootstrap core JavaScript
+  ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+</body>

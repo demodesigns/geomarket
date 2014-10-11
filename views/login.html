@@ -1,0 +1,61 @@
+<% include header.html %>
+
+<style>
+  body {
+    padding-top: 50px;
+  }
+  .starter-template {
+    padding: 40px 15px;
+    text-align: center;
+  }
+</style>
+
+<div class="container">
+
+  <div class="starter-template">
+    <h1>Login</h1>
+    <br>
+
+    <form class="form-inline" action="/login" method="post" class="form-horizontal span3">
+        <div class="control-group">
+            <div class="controls">
+                <input type="text" name="username" placeholder="username">
+            </div>
+        </div>
+        <br>
+        <div class="control-group">
+            <div class="controls">
+                <input type="text" name="password" placeholder="password">
+            </div>
+        </div>
+        <br>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn">login</button>
+            </div>
+        </div>
+    </form>
+  </div>
+
+
+</div>
+
+
+  <!-- Bootstrap core JavaScript
+  ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+</body>
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-47255359-1', 'ec2-54-200-143-14.us-west-2.compute.amazonaws.com');
+  ga('send', 'pageview');
+</script>
