@@ -6,8 +6,8 @@ var passport = require('passport');
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/market');
 
-require('./models/ad');
-require('./models/user');
+require('../models/ad');
+require('../models/user');
 
 // configurations
 require('./passportConfig');
@@ -22,23 +22,10 @@ app.use(passport.initialize());
 app.use(express.bodyParser());
 
 // routes
-var index = require('./routes/index');
-app.get('/', index.load);
-
-var market = require('./routes/market');
-app.get('/market', market.findAll);
-
-var signup = require('./routes/signup');
-app.get('/signup', signup.load);
-app.post('/signup', signup.create);
-
-var createAd = require('./routes/createAd');
-app.get('/createAd', createAd.load);
-app.post('/createAd', createAd.create);
-
-var login = require('./routes/login');
-app.get('/login', login.load);
-app.post('/login', passport.authenticate('local', 
+var users = require('./routes/users');
+app.post('/users/create', users.create);
+app.get('/users/:username', users.findByUsername);
+app.post('/users/login', passport.authenticate('local', 
 	{ 
 		successRedirect: '/market',
 		failureRedirect: '/login'/*,
@@ -46,4 +33,10 @@ app.post('/login', passport.authenticate('local',
 	})
 );
 
-app.listen(3000);
+var ads = require('./routes/ads');
+app.get('/ads/:id', ads.findOne);
+app.get('/ads', ads.findAll);
+app.post('/ads', ads.create);
+
+
+app.listen(3001);
