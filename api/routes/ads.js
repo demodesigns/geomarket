@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Ad = mongoose.model('Ad');
+var User = mongoose.model('User');
 var utils = require('../../helpers/utils');
 var config = require('../../config');
 var elasticsearch = require('../../helpers/elasticsearch');
@@ -42,6 +43,14 @@ exports.create = function(req, res) {
 	});
 };
 
+exports.updateImage = function(req, res) {
+	console.log(req.params.id);
+	console.log(req.params.accessToken);
+	console.log(req);
+	console.log(req.files);
+	return utils.sendJsonResponse(res, 200, 'OK', {});
+};
+
 exports.findOne = function(req, res) {
 	var id = req.params.id;
 
@@ -56,7 +65,9 @@ exports.findOne = function(req, res) {
 };
 
 exports.findAll = function(req, res) {
-	Ad.find({}, function(err, ads) {
+	var user = req.user;
+
+	Ad.find({zipcode: user.zipcode}, function(err, ads) {
 		if (err) {
 			console.log(err);
 			return utils.badRequest(res);
@@ -66,24 +77,23 @@ exports.findAll = function(req, res) {
 	});
 };
 
-esports.findAllWishlist = function(req, res) {
-	var username = req.username;
+exports.findAllWishlist = function(req, res) {
+	var username = req.user.username;
 
 	User.findOne({username: username}, function(err, user) {
 		if (err) {
 			console.log(err);
 			return utils.badRequest(res);
 		}
-		else
-		{
-			Ad.find({ '_id': { $in: user.wishlist]}}, function(err, ads){
-			     if (err) {
-					console.log(err);
-					return utils.badRequest(res);
-				}
-				return utils.sendJsonResponse(res, 200, 'OK', {ads: ads});
-			});
-		}
+
+		Ad.find({ '_id': { $in: user.wishlist }}, function(err, ads){
+		     if (err) {
+				console.log(err);
+				return utils.badRequest(res);
+			}
+			return utils.sendJsonResponse(res, 200, 'OK', {ads: ads});
+		});
+	});
 }
 
 exports.search = function(req, res) {

@@ -45,9 +45,10 @@ var ads = require('./routes/ads');
 app.get('/ads/:id', auth.ensureAuthenticated, ads.findOne);
 app.get('/ads', auth.ensureAuthenticated, ads.findAll);
 app.post('/ads', auth.ensureAuthenticated, ads.create);
+app.post('/ads/:id/:accessToken', auth.ensureAuthenticated, ads.updateImage);
 app.get('/ads/search/:query', auth.ensureAuthenticated, ads.search);
 app.post('/search/index', auth.ensureAuthenticated, ads.indexAllElasticSearch);
-app.get('/ads/findAllWishlist', auth.ensureAuthenticated, ads.findAllWishlist);
+app.get('/wishlist', auth.ensureAuthenticated, ads.findAllWishlist);
 
 /*
  *	conversations

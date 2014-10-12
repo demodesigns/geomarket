@@ -7,6 +7,7 @@ var UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     accessToken: { type: String, required: false, unique: true },
     radius: { type: Number },
+    loc  : { type: [Number], index: '2dsphere' },
     latitude: { type: Number },
     longitude: { type: Number },
     homeLatitude: { type: Number },

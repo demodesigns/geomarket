@@ -13,7 +13,7 @@
 		"cloudinary": "1.0.10",
 		"underscore": "1.7.0",
 		"async": "0.2.x",
-		"elasticsearchclient": "x.x.x"
+		"elasticsearchclient": "0.5.2"
 	}
 }
 
