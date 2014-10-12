@@ -3,6 +3,7 @@ var Ad = mongoose.model('Ad');
 var utils = require('../../helpers/utils');
 var config = require('../../config');
 var elasticsearch = require('../../helpers/elasticsearch');
+var _ = require('underscore');
 
 exports.create = function(req, res) {
 	var user = req.user._id;

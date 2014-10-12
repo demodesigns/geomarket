@@ -91,7 +91,7 @@ exports.search = function(index, type, text, callback) {
                     ]
                 }
             }
-        }, {size: config.elasticsearch.searchSize}, function(err, data) {
+        }, function(err, data) {
             if (err) {
                 return callback(err);
             }
