@@ -25,12 +25,20 @@ exports.create = function(req, res) {
 		description: description,
 		img: img
 	});
-	ad.save(function(err) {
+	ad.save(function(err, ad) {
 		if (err) {
 			console.log(err);
+			return utils.badRequest(res);
 		}
 
-		return utils.sendJsonResponse(res, 200, 'OK', {});
+		_indexElasticSearch(ad, function(err) {
+			if (err) {
+				console.log(err);
+				return utils.badRequest(res);
+			}
+			
+			return utils.sendJsonResponse(res, 200, 'OK', {ad: ad});
+		});
 	});
 };
 
@@ -88,11 +96,27 @@ exports.search = function(req, res) {
 };
 
 exports.indexAllElasticSearch = function(req, res) {
-	elasticsearch.indexAll(function(err) {
+	elasticsearch.createNgramAnalyzer(function(err) { 
 		if (err) {
 			return utils.badRequest(res);
 		}
 
-		return utils.sendJsonResponse(res, 200, 'OK', {});
+		elasticsearch.indexAll(function(err) {
+			if (err) {
+				return utils.badRequest(res);
+			}
+
+			return utils.sendJsonResponse(res, 200, 'OK', {});
+		});
+	});
+};
+
+var _indexElasticSearch = function(ad, callback) {
+	elasticsearch.index(ad, function(err) {
+		if (err) {
+			return callback(err);
+		}
+
+		return callback(null);
 	});
 };

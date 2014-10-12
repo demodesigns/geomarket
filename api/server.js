@@ -47,7 +47,6 @@ app.get('/ads', auth.ensureAuthenticated, ads.findAll);
 app.post('/ads', auth.ensureAuthenticated, ads.create);
 app.get('/ads/search/:query', auth.ensureAuthenticated, ads.search);
 app.post('/search/index', auth.ensureAuthenticated, ads.indexAllElasticSearch);
-//app.post('/search/index/:id', auth.ensureAuthenticated, ads.indexElasticSearch);
 
 /*
  *	conversations

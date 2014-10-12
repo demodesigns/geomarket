@@ -336,152 +336,89 @@ exports.indexAll = function(callback) {
 	});
 };
 
-exports.resetForProduct = function(productId, callback) {
+exports.index = function(ad, callback) {
 	var bulkCommands = [];
 
-	Product.findById(productId).populate('variants.variant').exec(function(err, product) {
+	Ad.find({_id: ad._id}, function(err, ads) {
 	    if (err) {
-	        console.log('Error while finding product:' + err);
+	        console.log(err);
 	        return callback(err);
 	    }
 
-	    var variantIds = [];
-	    if (product) {
-	        variantIds = _.map(product.variants, function(variant) {
-	            return variant.variant._id;
-	        });
-	    }
-		ProductCategory.getFeaturedMaps(function(err, featuredMaps) {
-            if (err) {
-                console.log('Error while getting featuredMaps')
-                return callback(err);
-            }
+    	async.eachSeries(ads, function(ad, cb) { 
+    		var id = ad._id,
+				title = ad.title;
+				description = ad.description,
+				ft_title = title,
+				ft_description = description,
+        	
+			title = title.toLowerCase();
+			title = title.split(' ');
+			description = description.toLowerCase();
+			description = description.split(' ');
 
-            //var entities = ProductListEntity.getEntitiesForProduct(product, featuredMaps);
-            //ProductListEntity.populate(entities, 'variant product', function(err, entities) {
-            ProductListEntity.find({ visible: true, filterCategoryPath: 'ALL' }).populate('variant product').exec(function(err, entities) {
-            	ProductListEntity.populate(entities,
-		        [{
-		            path: 'variant.product',
-		            model: Product,
-		            options: { lean: true }
-		        }, {
-		            path: 'product.variants.variant',
-		            model: Variant,
-		            options: { lean: true }
-		        }], function(err, entities) {
-		        	if (err) {
-		        		return callback(err);
-		        	} 
+			// add duplicate versions of words with hyphens replaced with spaces
+			var duplicates = [];
+			title.forEach(function(str) {
+				if (_.contains(str, "-")) {
+					str = str.replace("-", " ");
+					duplicates.push(str);
+				}
+				if (_.contains(str, "'")) {
+					str = str.replace("'", "");
+					duplicates.push(str);
+				}	
+			});
+			title = title.concat(duplicates);
+			
+			var duplicates = [];
+			description.forEach(function(str) {
+				if (_.contains(str, "-")) {
+					str = str.replace("-", " ");
+					duplicates.push(str);
+				}
+				if (_.contains(str, "'")) {
+					str = str.replace("'", "");
+					duplicates.push(str);
+				}	
+			});
+			description = description.concat(duplicates);
 
-		        	async.eachSeries(entities, function(entity, cb) { 
-		        		if (entity.variant == null && entity.product == null) {
-							cb(null);
-						} else {
-			            	if (entity.type == 0) {
-			            		var id = entity.variant.id,
-									name = entity.variant.name;
-									extendedName = entity.variant.extendedName,
-									keywords = entity.variant.product.keywords,
-									ft_name = name,
-									ft_extendedName = extendedName,
-									ft_keywords = keywords,
-									product = entity.variant.product._id;
-			            	} else if (entity.type == 1) {
-								var id = entity.product.id,
-									name = entity.product.name,
-									extendedName = entity.product.extendedName,
-									keywords = entity.product.keywords,
-									ft_name = name,
-									ft_extendedName = extendedName,
-									ft_keywords = keywords,
-									product = entity.product._id;
-			            	}
+			var indexMap = {
+				ft_title: ft_title,
+        		ft_description: ft_description,
+				title: {
+					id: title,
+					grams: title
+				},
+				description: {
+					id: description,
+					grams: description
+				}
+			}
 
-							// must override the elasticsearch lowercase because synonyms applies to the unfiltered case-sensitive version
-							name = name.toLowerCase();
-							name = name.split(' ');
-							extendedName = extendedName.toLowerCase();
-							extendedName = extendedName.split(' ');
+			bulkCommands.push({
+				"index" : {
+					"_index": config.elasticsearch.entityIndex,
+					"_type": "gram",
+					"_id": ad._id
+				}
+			});
+			bulkCommands.push(indexMap);
 
-							// add duplicate versions of words with hyphens replaced with spaces
-							var duplicates = [];
-							name.forEach(function(str) {
-								if (_.contains(str, "-")) {
-									str = str.replace("-", " ");
-									duplicates.push(str);
-								}
-								if (_.contains(str, "'")) {
-									str = str.replace("'", "");
-									duplicates.push(str);
-								}	
-							});
-							name = name.concat(duplicates);
-							
-							var duplicates = [];
-							extendedName.forEach(function(str) {
-								if (_.contains(str, "-")) {
-									str = str.replace("-", " ");
-									duplicates.push(str);
-								}
-								if (_.contains(str, "'")) {
-									str = str.replace("'", "");
-									duplicates.push(str);
-								}	
-							});
-							extendedName = extendedName.concat(duplicates);
+			cb(null);
+		}, function(err) {
+			if (err) { 
+				return callback(err); 
+			}
 
-							var indexMap = {
-								product: product,
-								ft_name: ft_name,
-			            		ft_extendedName: ft_extendedName,
-			            		ft_keywords: ft_keywords,
-								name: {
-									id: name,
-									grams: name
-								},
-								extendedName: {
-									id: extendedName,
-									grams: extendedName
-								},
-								keywords: {
-									id: keywords,
-									grams: keywords
-								}
-							}
-
-							if (entity.type == 0) {
-								var eId = entity.variant.id;
-							} else if (entity.type == 1) {
-								var eId = entity.product.id;
-							}
-
-							bulkCommands.push({
-								"index" : {
-									"_index": config.elasticsearch.entityIndex,
-									"_type": "gram",
-									"_id": eId
-								}
-							});
-							bulkCommands.push(indexMap);
-
-							cb(null);
-						}
-					}, function(err) {
-						if (err) { 
-							return callback(err); 
-						}
-
-						elasticSearchClient.bulk(bulkCommands, {}, function(err, data) {
-                            if (err) { 
-                                    return callback(err);
-                            }
-                     
-                            return callback(null);
-                        });
-					});
-				});
-	        });
-        });
-    });
+			elasticSearchClient.bulk(bulkCommands, {}, function(err, data) {
+                if (err) { 
+                        return callback(err);
+                }
+         
+                return callback(null);
+            });
+		});
+	});
 };
