@@ -6,7 +6,7 @@ exports.addToWishlist = function(req, res) {
 	var user = req.user;
 
 	if(user != null) {
-		User.update( { username: user.username } , { $push: { wishlist : req.ad._id } }, function(err) {
+		User.findOneAndUpdate( { username: user.username } , { $push: { wishlist : req.body.ad._id } }, function(err, user) {
             if (err) {
                 console.log(err);
                 return utils.badRequest(res);
@@ -20,7 +20,7 @@ exports.removeFromWishlist = function(req, res) {
 	var user = req.user;
 
 	if(user != null) {
-		User.update( { username: user.username } , { $pull: { wishlist : req.ad._id } }, function(err) {
+		User.findOneAndUpdate( { username: user.username } , { $pull: { wishlist : req.body.ad._id } }, function(err, user) {
             if (err) {
                 console.log(err);
                 return utils.badRequest(res);
