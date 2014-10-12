@@ -11,8 +11,7 @@
 		"passport-local": "0.1.x",
 		"connect-ensure-login": "0.1.x",
 		"cloudinary": "1.0.10",
-		"underscore": "1.7.0",
-		"mongoose-auto-increment": "3.0.8"
+		"underscore": "1.7.0"
 	}
 }
 
