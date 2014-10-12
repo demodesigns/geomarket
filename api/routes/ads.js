@@ -15,13 +15,13 @@ exports.create = function(req, res) {
 	if (isNaN(price)) {
 		return utils.badRequest(res);
 	}
-	
+
 	price = parseFloat(price);
 
 	var ad = new Ad({
 		user: user,
-		title: title, 
-		price: price, 
+		title: title,
+		price: price,
 		description: description,
 		img: img
 	});
@@ -36,7 +36,7 @@ exports.create = function(req, res) {
 				console.log(err);
 				return utils.badRequest(res);
 			}
-			
+
 			return utils.sendJsonResponse(res, 200, 'OK', {ad: ad});
 		});
 	});
@@ -51,7 +51,7 @@ exports.findOne = function(req, res) {
 			return utils.badRequest(res);
 		}
 
-		return utils.sendJsonResponse(res, 200, 'OK', {ad: ad}); 
+		return utils.sendJsonResponse(res, 200, 'OK', {ad: ad});
 	});
 };
 
@@ -65,6 +65,26 @@ exports.findAll = function(req, res) {
 		return utils.sendJsonResponse(res, 200, 'OK', {ads: ads});
 	});
 };
+
+esports.findAllWishlist = function(req, res) {
+	var username = req.username;
+
+	User.findOne({username: username}, function(err, user) {
+		if (err) {
+			console.log(err);
+			return utils.badRequest(res);
+		}
+		else
+		{
+			Ad.find({ '_id': { $in: user.wishlist]}}, function(err, ads){
+			     if (err) {
+					console.log(err);
+					return utils.badRequest(res);
+				}
+				return utils.sendJsonResponse(res, 200, 'OK', {ads: ads});
+			});
+		}
+}
 
 exports.search = function(req, res) {
     var query = req.params.query;
@@ -96,7 +116,7 @@ exports.search = function(req, res) {
 };
 
 exports.indexAllElasticSearch = function(req, res) {
-	elasticsearch.createNgramAnalyzer(function(err) { 
+	elasticsearch.createNgramAnalyzer(function(err) {
 		if (err) {
 			return utils.badRequest(res);
 		}
