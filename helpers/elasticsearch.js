@@ -3,7 +3,8 @@ var mongoose = require('mongoose'),
 	ElasticSearchClient = require('elasticsearchclient'),
 	_ = require('underscore'),
 	url = require('url'),
-	config = require('../config');
+	config = require('../config'),
+	async = require('async');
 
 var connectionString = url.parse(config.elasticsearch.url);
 var serverOptions = {
@@ -160,7 +161,7 @@ exports.createNgramAnalyzer = function(callback) {
 };
 
 // this method of indexing drops the entire index and then recreates it.
-exports.indexAllEntities = function(callback) {
+exports.indexAll = function(callback) {
 	var bulkCommands = [];
 
 	Ad.find({}, function(err, ads) {
@@ -255,63 +256,66 @@ exports.indexAllEntities = function(callback) {
 				async.eachSeries(ads, function(ad, cb) {
 					var	title = ad.title,
 						description = ad.description,
-						ft_title = name,
-						ft_description = extendedName;
+						ft_title = title,
+						ft_description = description;
 	
 					// must override the elasticsearch lowercase because synonyms applies to the unfiltered case-sensitive version
-					title = title.toLowerCase();
-					title = title.split(' ');
-					description = description.toLowerCase();
-					description = description.split(' ');
+					if (title && description) {
+						title = title.toLowerCase();
+						title = title.split(' ');
+						description = description.toLowerCase();
+						description = description.split(' ');
 
-					// add duplicate versions of words with hyphens replaced with spaces
-					var duplicates = [];
-					title.forEach(function(str) {
-						if (_.contains(str, "-")) {
-							str = str.replace("-", " ");
-							duplicates.push(str);
+						// add duplicate versions of words with hyphens replaced with spaces
+						var duplicates = [];
+						title.forEach(function(str) {
+							if (_.contains(str, "-")) {
+								str = str.replace("-", " ");
+								duplicates.push(str);
+							}
+							if (_.contains(str, "'")) {
+								str = str.replace("'", "");
+								duplicates.push(str);
+							}	
+						});
+						title = title.concat(duplicates);
+						
+						var duplicates = [];
+						description.forEach(function(str) {
+							if (_.contains(str, "-")) {
+								str = str.replace("-", " ");
+								duplicates.push(str);
+							}
+							if (_.contains(str, "'")) {
+								str = str.replace("'", "");
+								duplicates.push(str);
+							}	
+						});
+						description = description.concat(duplicates);
+						
+						var indexMap = {
+							ft_title: ft_title,
+		            		ft_description: ft_description,
+							title: {
+								id: title,
+								grams: title
+							},
+							description: {
+								id: description,
+								grams: description
+							}
 						}
-						if (_.contains(str, "'")) {
-							str = str.replace("'", "");
-							duplicates.push(str);
-						}	
-					});
-					title = title.concat(duplicates);
-					
-					var duplicates = [];
-					description.forEach(function(str) {
-						if (_.contains(str, "-")) {
-							str = str.replace("-", " ");
-							duplicates.push(str);
-						}
-						if (_.contains(str, "'")) {
-							str = str.replace("'", "");
-							duplicates.push(str);
-						}	
-					});
-					description = description.concat(duplicates);
-					
-					var indexMap = {
-						ft_title: ft_title,
-	            		ft_description: ft_description,
-						title: {
-							id: title,
-							grams: title
-						},
-						description: {
-							id: description,
-							grams: description
-						}
+
+						bulkCommands.push({
+							"index" : {
+								"_index": config.elasticsearch.entityIndex,
+								"_type": "gram",
+								"_id": ad._id
+							}
+						});
+
+						bulkCommands.push(indexMap);
 					}
-
-					bulkCommands.push({
-						"index" : {
-							"_index": config.elasticsearch.entityIndex,
-							"_type": "gram",
-							"_id": ad._id
-						}
-					});
-					bulkCommands.push(indexMap);
 
 					cb(null);
 				}, function(err) {
@@ -321,7 +325,7 @@ exports.indexAllEntities = function(callback) {
 
 					elasticSearchClient.bulk(bulkCommands, {}, function(err, data) {
                         if (err) { 
-                                return callback(err);
+                            return callback(err);
                         }
                  
                         return callback(null);

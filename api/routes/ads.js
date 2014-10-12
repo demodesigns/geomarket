@@ -58,7 +58,7 @@ exports.findAll = function(req, res) {
 };
 
 exports.search = function(req, res) {
-    var query = req.param('query');
+    var query = req.params.query;
 
     elasticsearch.search(config.elasticsearch.entityIndex, 'gram', query, function(err, ids) {
         if (err) {
@@ -77,11 +77,21 @@ exports.search = function(req, res) {
 
         Ad.find(query, function(err, ads) {
             if (err) {
-                console.log('Error while finding and populating entities:' + err);
+                console.log(err);
                 return utils.badRequest(res);
             }
 
-            return utils.sendJsonResponse(res, 200, 'OK', {ads: ads});
+            return utils.sendJsonResponse(res, 200, 'OK', { ads: ads });
         });
 	});
-}
+};
+
+exports.indexAllElasticSearch = function(req, res) {
+	elasticsearch.indexAll(function(err) {
+		if (err) {
+			return utils.badRequest(res);
+		}
+
+		return utils.sendJsonResponse(res, 200, 'OK', {});
+	});
+};
