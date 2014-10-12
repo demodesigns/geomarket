@@ -36,13 +36,13 @@ exports.create = function(req, res) {
 			city: city,
 			zipcode: zipcode
 		});
-		user.saveWithNewAccessToken(function(err) {
+		user.saveWithNewAccessToken(function(err, savedUser) {
 			if (err) {
 				console.log(err);
 				return utils.badRequest(res);
 			}
 
-			return utils.sendJsonResponse(res, 200, 'OK', {});
+			return utils.sendJsonResponse(res, 200, 'OK', { user: savedUser });
 		});
 	} else {
 		return utils.badRequest(res);

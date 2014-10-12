@@ -12,11 +12,10 @@ exports.ensureAuthenticated = function(req, res, next) {
     User.findByAccessToken(accessToken).exec(function(err, user) {
         if (err || !user) {
             console.log("error finding user with accessToken:" + accessToken + ', err:' + err);
-            utils.unauthorized(res);
+            utils.badRequest(res);
             return;
         }
-        console.log(accessToken);
-        console.log(JSON.stringify(user));
+
         req.user = user;
         return next();
     });
