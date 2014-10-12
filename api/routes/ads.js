@@ -5,6 +5,7 @@ var utils = require('../../helpers/utils');
 var config = require('../../config');
 var elasticsearch = require('../../helpers/elasticsearch');
 var _ = require('underscore');
+var fs = require('fs');
 
 exports.create = function(req, res) {
 	var user = req.user._id;
@@ -44,11 +45,34 @@ exports.create = function(req, res) {
 };
 
 exports.updateImage = function(req, res) {
-	console.log(req.params.id);
-	console.log(req.params.accessToken);
-	console.log(req);
-	console.log(req.files);
-	return utils.sendJsonResponse(res, 200, 'OK', {});
+	Ad.findOneAndUpdate({_id: mongoose.Types.ObjectId(req.params.id)}, {img: '/img/' + req.params.id + '.jpg'}, function(err, ad) {
+		if (err) {
+			return utils.badRequest(res);
+		}
+
+		var file = fs.createWriteStream('./public/img/' + req.params.id + '.jpg');
+		var uploadedSize = 0;
+		var fileSize = req.headers['content-length'];
+
+		req.on('data', function (chunk) {
+			uploadedSize += chunk.length;
+			var uploadProgress = (uploadedSize/fileSize) * 100;
+			console.log(Math.round(uploadProgress) + "%" + " uploaded\n" );
+			var bufferStore = file.write(chunk);
+			if(bufferStore == false)
+				req.pause();
+		});
+
+		file.on('drain', function() {
+		    req.resume();
+		})
+		 
+		req.on('end', function() {
+		    console.log('Upload done!');
+
+		    return utils.sendJsonResponse(res, 200, 'OK', {ad: ad});
+		})
+	});
 };
 
 exports.findOne = function(req, res) {
