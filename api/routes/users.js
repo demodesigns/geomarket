@@ -2,6 +2,34 @@ var mongoose = require('mongoose'),
 	User = mongoose.model('User'),
 	utils = require('../../helpers/utils');
 
+exports.addToWishlist = function(req, res) {
+	var user = req.user;
+
+	if(user != null) {
+		User.update( { username: user.username } , { $push: { wishlist : req.ad._id } }, function(err) {
+            if (err) {
+                console.log(err);
+                return utils.badRequest(res);
+            }
+            return utils.sendJsonResponse(res, 200, 'OK', {user: user});
+        });
+	}
+}
+
+exports.removeFromWishlist = function(req, res) {
+	var user = req.user;
+
+	if(user != null) {
+		User.update( { username: user.username } , { $pull: { wishlist : req.ad._id } }, function(err) {
+            if (err) {
+                console.log(err);
+                return utils.badRequest(res);
+            }
+            return utils.sendJsonResponse(res, 200, 'OK', {user: user});
+        });
+	}
+}
+
 exports.findByUsername = function(req, res) {
 	var username = req.params.username;
 
@@ -26,9 +54,9 @@ exports.create = function(req, res) {
 		zipcode = req.body.zipcode;
 
 	if (username != null && password != null && email != null) {
-		var user = new User({ 
-			username: username, 
-			password: password, 
+		var user = new User({
+			username: username,
+			password: password,
 			email: email,
 			homeLatitude: homeLatitude,
 			homeLongitude: homeLongitude,

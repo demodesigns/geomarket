@@ -16,7 +16,7 @@ require('./passportConfig');
 app.engine('.html', require('ejs').__express);
 app.set('views', __dirname + '/views');
 app.use(express.static(__dirname + '/public'));
-app.use(express.favicon(__dirname + '/public/img/favicon.png')); 
+app.use(express.favicon(__dirname + '/public/img/favicon.png'));
 app.use(passport.initialize());
 
 // middleware
@@ -35,6 +35,8 @@ app.get('/users/:username', users.findByUsername);
 app.post('/users/login', passport.authenticate('local', { session: false }), function(req, res) {
     return utils.sendJsonResponse(res, 200, 'OK', { user: req.user });
 });
+app.post('/users/addToWishlist', auth.ensureAuthenticated, users.addToWishlist);
+app.post('/users/removeFromWishlist', auth.ensureAuthenticated, users.removeFromWishlist);
 
 /*
  *	ads
