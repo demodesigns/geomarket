@@ -9,7 +9,10 @@ var UserSchema = new mongoose.Schema({
     radius: { type: Number },
     latitude: { type: Number },
     longitude: { type: Number },
+    homeLatitude: { type: Number },
+    homeLongitude: { type: Number },
     state: { type: String },
+    city: { type: String },
     zipcode: { type: Number },
     ads: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Ad' }],
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Ad' }]
@@ -29,6 +32,12 @@ UserSchema.methods = {
         return this.save(cb);
     },
 };
+
+UserSchema.statics = {
+    findByAccessToken: function(accessToken) {
+        return this.findOne({accessToken: accessToken});
+    },
+}
 
 module.exports = mongoose.model('User', UserSchema);
 var User = mongoose.model('User');

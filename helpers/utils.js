@@ -47,3 +47,20 @@ exports.generateAccessToken = function(userId, date) {
     var hexdigest = exports.hexdigest([userId.toString(), date.toString()]);
     return new Buffer(hexdigest).toString('base64');
 };
+
+exports.getAccessToken = function(req) {
+    var accessToken = null;
+    if (req.session) {
+        var accessTokenFromSession = req.session.accessToken;
+        if (accessTokenFromSession) {
+            accessToken = accessTokenFromSession;
+        }
+    }
+
+    var accessTokenFromParam = req.param('accessToken');
+    if (accessTokenFromParam) {
+        accessToken = accessTokenFromParam;
+    }
+
+    return accessToken;
+}

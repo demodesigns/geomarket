@@ -21,22 +21,21 @@ app.use(passport.initialize());
 // middleware
 app.use(express.bodyParser());
 
+var auth = require('./middleware/auth');
+var utils = require ('../helpers/utils');
+
 // routes
 var users = require('./routes/users');
 app.post('/users/create', users.create);
 app.get('/users/:username', users.findByUsername);
-app.post('/users/login', passport.authenticate('local', 
-	{ 
-		successRedirect: '/market',
-		failureRedirect: '/login'/*,
-		failureFlash: true  */
-	})
-);
+app.post('/users/login', passport.authenticate('local', { session: false }), function(req, res) {
+    return utils.sendJsonResponse(res, 200, 'OK', { user: req.user });
+});
 
 var ads = require('./routes/ads');
-app.get('/ads/:id', ads.findOne);
-app.get('/ads', ads.findAll);
-app.post('/ads', ads.create);
+app.get('/ads/:id', auth.ensureAuthenticated, ads.findOne);
+app.get('/ads', auth.ensureAuthenticated, ads.findAll);
+app.post('/ads', auth.ensureAuthenticated, ads.create);
 
 
 app.listen(3001);

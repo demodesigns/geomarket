@@ -19,7 +19,10 @@ exports.create = function(req, res) {
 	var username = req.body.username,
 		password = req.body.password,
 		email = req.body.email,
+		homeLatitude = req.body.latitude,
+		homeLongitude = req.body.longitude,
 		state = req.body.state,
+		city = req.body.city,
 		zipcode = req.body.zipcode;
 
 	if (username != null && password != null && email != null) {
@@ -27,7 +30,10 @@ exports.create = function(req, res) {
 			username: username, 
 			password: password, 
 			email: email,
+			homeLatitude: homeLatitude,
+			homeLongitude: homeLongitude,
 			state: state,
+			city: city,
 			zipcode: zipcode
 		});
 		user.saveWithNewAccessToken(function(err) {
